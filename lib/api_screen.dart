@@ -12,20 +12,20 @@ class ApiHome extends StatefulWidget {
 }
 
 class _ApiHomeState extends State<ApiHome> {
-  late Future<Temperatures> futureTemperatures;
+  late Future<CoinCharts> futureCoincharts;
 
   @override
   void initState() {
     super.initState();
-    futureTemperatures = fetchTemperatures();
+    futureCoincharts = fetchCoins();
   }
 
-  Future<Temperatures> fetchTemperatures() async {
+  Future<CoinCharts> fetchCoins() async {
     final response = await http
         .get(Uri.parse('https://api.coindesk.com/v1/bpi/currentprice.json'));
 
     if (response.statusCode == 200) {
-      return Temperatures.fromJson(json.decode(response.body));
+      return CoinCharts.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to load temperatures');
     }
@@ -34,8 +34,8 @@ class _ApiHomeState extends State<ApiHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<Temperatures>(
-        future: futureTemperatures,
+      body: FutureBuilder<CoinCharts>(
+        future: futureCoincharts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -62,7 +62,12 @@ class _ApiHomeState extends State<ApiHome> {
 
                 return ListTile(
                   title: Text(eur.code),
-                  subtitle: Text('${eur.rate} ${eur.symbol}'),
+                  subtitle: Column(
+                    children: [
+                      Text('${eur.rate} ${eur.symbol}'),
+                      Text(eur.description)
+                    ],
+                  ),
                   // Add more information as needed
                 );
               },
